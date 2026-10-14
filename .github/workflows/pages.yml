@@ -1,0 +1,36 @@
+name: Stickie auf GitHub Pages veröffentlichen
+on:
+  push:
+    branches: [main]
+    paths: [stickie-web.zip]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Web-App entpacken
+        run: |
+          mkdir -p dist
+          unzip -q stickie-web.zip -d dist
+          test -s dist/index.html
+          test -s dist/index.wasm
+          test -s dist/index.pck
+          touch dist/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - name: Veröffentlichen
+        id: deployment
+        uses: actions/deploy-pages@v4
