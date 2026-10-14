@@ -2,7 +2,7 @@ name: Stickie auf GitHub Pages veröffentlichen
 on:
   push:
     branches: [main]
-    paths: [stickie-web.zip]
+    paths: [stickie-web.zip, stickie-web.zip.b64, .github/workflows/pages.yml]
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,6 +22,11 @@ jobs:
       - name: Web-App entpacken
         run: |
           mkdir -p dist
+          if [ ! -f stickie-web.zip ]; then
+            base64 --decode stickie-web.zip.b64 > stickie-web.zip
+          fi
+          sha256sum stickie-web.zip
+          unzip -tq stickie-web.zip
           unzip -q stickie-web.zip -d dist
           test -s dist/index.html
           test -s dist/index.wasm
